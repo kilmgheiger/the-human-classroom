@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapas Interactivos — The Human Classroom</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500;1,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --crema:      #FAF8F5;
+      --texto:      #1A1A1A;
+      --musgo:      #5C6B4A;
+      --musgo-dark: #47553A;
+      --terracota:  #9E5E3F;
+      --gris:       #E8E4DE;
+      --blanco:     #FFFFFF;
+      --f-titulo:   'Cormorant Garamond', Georgia, serif;
+      --f-cuerpo:   'Manrope', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--crema);
+      color: var(--texto);
+      font-family: var(--f-cuerpo);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(250,248,245,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gris);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--f-titulo);
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--texto);
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--musgo); }
+
+    .nav-back {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--musgo);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
+    }
+
+    .nav-back:hover { gap: 12px; }
+
+    /* ── CABECERA ── */
+    .cabecera {
+      padding: 64px 40px 48px;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--musgo);
+      margin-bottom: 16px;
+    }
+
+    .cabecera h1 {
+      font-family: var(--f-titulo);
+      font-style: italic;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--texto);
+      margin-bottom: 20px;
+    }
+
+    .cabecera p {
+      font-size: 16px;
+      color: #3A3835;
+      line-height: 1.8;
+    }
+
+    .sep {
+      width: 48px;
+      height: 2px;
+      background: var(--musgo);
+      margin: 20px auto 28px;
+    }
+
+    /* ── SELECTOR DE MAPAS ── */
+    .selector {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 32px 48px;
+    }
+
+    .selector-btn {
+      font-family: var(--f-cuerpo);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border: 1.5px solid var(--gris);
+      background: var(--blanco);
+      color: var(--texto);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .selector-btn:hover {
+      border-color: var(--musgo);
+      color: var(--musgo);
+    }
+
+    .selector-btn.activo {
+      background: var(--musgo);
+      border-color: var(--musgo);
+      color: var(--blanco);
+    }
+
+    .selector-btn .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── CONTENEDOR DE MAPA ── */
+    .mapa-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+
+    .mapa-panel {
+      display: none;
+    }
+
+    .mapa-panel.activo {
+      display: block;
+    }
+
+    .mapa-info {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .mapa-info-texto h2 {
+      font-family: var(--f-titulo);
+      font-style: italic;
+      font-size: clamp(24px, 3vw, 38px);
+      font-weight: 500;
+      color: var(--texto);
+      margin-bottom: 8px;
+    }
+
+    .mapa-info-texto p {
+      font-size: 15px;
+      color: #3A3835;
+      line-height: 1.75;
+      max-width: 600px;
+    }
+
+    .mapa-contador {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--musgo);
+      background: rgba(92,107,74,0.10);
+      padding: 8px 16px;
+      white-space: nowrap;
+    }
+
+    .mapa-container {
+      width: 100%;
+      height: 520px;
+      border: 1px solid var(--gris);
+      position: relative;
+    }
+
+    /* ── LEYENDA ── */
+    .leyenda {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #3A3835;
+    }
+
+    .leyenda-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── LISTA DE LOCALIZACIONES ── */
+    .lista-lugares {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .lugar-card {
+      background: var(--blanco);
+      border: 1px solid var(--gris);
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .lugar-card:hover {
+      border-color: var(--musgo);
+      box-shadow: 0 2px 12px rgba(92,107,74,0.12);
+    }
+
+    .lugar-card-cat {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .lugar-card h3 {
+      font-family: var(--f-titulo);
+      font-style: italic;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--texto);
+      margin-bottom: 6px;
+    }
+
+    .lugar-card p {
+      font-size: 13px;
+      color: #6A6560;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--texto);
+      padding: 40px 40px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .cabecera { padding: 40px 20px 32px; }
+      .selector { padding: 0 20px 32px; }
+      .mapa-wrapper { padding: 0 16px 60px; }
+      .mapa-container { height: 380px; }
+      .mapa-info { grid-template-columns: 1fr; }
+      .selector-btn { padding: 10px 18px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="the-human-classroom.html">The Human <span>Classroom</span></a>
+  <a class="nav-back" href="the-human-classroom.html">← Volver al inicio</a>
+</nav>
+
+<!-- CABECERA -->
+<div class="cabecera">
+  <div class="eyebrow">Herramienta interactiva</div>
+  <h1>Asturias sobre el mapa</h1>
+  <div class="sep"></div>
+  <p>Explora el patrimonio cultural de Asturias a través de cuatro mapas temáticos. Haz clic en cualquier marcador para obtener información sobre el lugar.</p>
+</div>
+
+<!-- SELECTOR -->
+<div class="selector">
+  <button class="selector-btn activo" onclick="mostrarMapa('cultura')" id="btn-cultura">
+    <span class="dot" style="background:#2563EB"></span> Cultura Marítima
+  </button>
+  <button class="selector-btn" onclick="mostrarMapa('historia')" id="btn-historia">
+    <span class="dot" style="background:#9E5E3F"></span> Historia
+  </button>
+  <button class="selector-btn" onclick="mostrarMapa('gastronomia')" id="btn-gastronomia">
+    <span class="dot" style="background:#D97706"></span> Gastronomía
+  </button>
+  <button class="selector-btn" onclick="mostrarMapa('oficios')" id="btn-oficios">
+    <span class="dot" style="background:#5C6B4A"></span> Oficios Tradicionales
+  </button>
+</div>
+
+<!-- MAPAS -->
+<div class="mapa-wrapper">
+
+  <!-- CULTURA MARÍTIMA -->
+  <div class="mapa-panel activo" id="panel-cultura">
+    <div class="mapa-info">
+      <div class="mapa-info-texto">
+        <h2>Cultura Marítima</h2>
+        <p>Los puertos pesqueros, las cofradías, las lonjas y los faros que definen la relación ancestral de Asturias con el mar Cantábrico.</p>
+      </div>
+      <div class="mapa-contador">8 localizaciones</div>
+    </div>
+    <div class="mapa-container" id="mapa-cultura"></div>
+    <div class="leyenda">
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#2563EB"></div> Puerto pesquero</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#1D4ED8"></div> Faro</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#60A5FA"></div> Museo marítimo</div>
+    </div>
+    <div class="lista-lugares" id="lista-cultura"></div>
+  </div>
+
+  <!-- HISTORIA -->
+  <div class="mapa-panel" id="panel-historia">
+    <div class="mapa-info">
+      <div class="mapa-info-texto">
+        <h2>Historia y Territorio</h2>
+        <p>Castros prerromanos, monumentos del arte prerrománico asturiano, cuencas mineras y lugares que forjaron la identidad de Asturias.</p>
+      </div>
+      <div class="mapa-contador">8 localizaciones</div>
+    </div>
+    <div class="mapa-container" id="mapa-historia"></div>
+    <div class="leyenda">
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#9E5E3F"></div> Prerrománico</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#7C3D2E"></div> Castro prerromano</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#C4845A"></div> Patrimonio minero</div>
+    </div>
+    <div class="lista-lugares" id="lista-historia"></div>
+  </div>
+
+  <!-- GASTRONOMÍA -->
+  <div class="mapa-panel" id="panel-gastronomia">
+    <div class="mapa-info">
+      <div class="mapa-info-texto">
+        <h2>Gastronomía y Saberes</h2>
+        <p>Queserías artesanales, lagares de sidra, mercados tradicionales y denominaciones de origen que definen la despensa asturiana.</p>
+      </div>
+      <div class="mapa-contador">8 localizaciones</div>
+    </div>
+    <div class="mapa-container" id="mapa-gastronomia"></div>
+    <div class="leyenda">
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#D97706"></div> Quesería / D.O.</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#B45309"></div> Lagar de sidra</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#F59E0B"></div> Mercado tradicional</div>
+    </div>
+    <div class="lista-lugares" id="lista-gastronomia"></div>
+  </div>
+
+  <!-- OFICIOS -->
+  <div class="mapa-panel" id="panel-oficios">
+    <div class="mapa-info">
+      <div class="mapa-info-texto">
+        <h2>Oficios Tradicionales</h2>
+        <p>Ferrerías, molinos, telares, alfarerías y talleres artesanales donde perviven los saberes manuales transmitidos durante generaciones.</p>
+      </div>
+      <div class="mapa-contador">8 localizaciones</div>
+    </div>
+    <div class="mapa-container" id="mapa-oficios"></div>
+    <div class="leyenda">
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#5C6B4A"></div> Ferrería / Molino</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#47553A"></div> Artesanía textil</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#8FAB72"></div> Alfarería</div>
+    </div>
+    <div class="lista-lugares" id="lista-oficios"></div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>The Human Classroom · <a href="the-human-classroom.html">Volver al inicio</a> · © 2026</p>
+</footer>
+
+<script>
+// ── DATOS ──────────────────────────────────────────────────────────
+
+const datos = {
+
+  cultura: {
+    color: '#2563EB',
+    lugares: [
+      { lat: 43.516878, lng: -5.265087, nombre: 'Puerto de Lastres', cat: 'Puerto pesquero', color: '#2563EB',
+        desc: 'Se recuesta bajo un acantilado en la costa oriental asturiana, con sus casas de pescadores trepando hasta la iglesia de Santa María. Uno de los puertos pesqueros más fotografiados de Asturias, su cofradía mantiene viva la tradición de la pesca artesanal del bonito y el pixín.' },
+      { lat: 43.556335, lng: -5.698289, nombre: 'Puerto de Gijón (El Musel)', cat: 'Puerto pesquero', color: '#2563EB',
+        desc: 'Es el puerto más importante de Asturias y uno de los mayores del Cantábrico. Construido a principios del siglo XX para dar salida al carbón de las cuencas mineras asturianas, fue motor económico de la región durante décadas. Hoy es puerto comercial, pesquero y energético, aunque su lonja sigue siendo uno de los centros de subasta de pescado más activos del norte de España.' },
+      { lat: 43.464848, lng: -5.062910, nombre: 'Puerto de Ribadesella', cat: 'Puerto pesquero', color: '#2563EB',
+        desc: 'Ocupa la desembocadura del río Sella. Fue puerto comercial medieval de exportación de sidra, castañas y mineral hacia el norte de Europa. En el siglo XX la llegada del ferrocarril transformó su economía, y hoy es conocido mundialmente por el Descenso Internacional del Sella, celebrado cada agosto desde 1930. A escasos metros del puerto se abre la cueva de Tito Bustillo, con pinturas rupestres paleolíticas de hace 25.000 años.' },
+      { lat: 43.656855, lng: -5.848632, nombre: 'Faro de Peñas', cat: 'Faro', color: '#1D4ED8',
+        desc: 'El Faro de Cabo de Peñas es el más septentrional de la Península Ibérica y uno de los más potentes del Cantábrico. Inaugurado en 1852, su luz alcanza 35 millas náuticas y ha guiado durante siglos a los marineros en una de las costas más peligrosas de Europa. Enclavado en un cabo de acantilados verticales y prados verdes, es hoy Paisaje Protegido y uno de los miradores más impresionantes de Asturias.' },
+      { lat: 43.564857, lng: -6.734204, nombre: 'Faro de San Agustín', cat: 'Faro', color: '#1D4ED8',
+        desc: 'Se alza en la punta de Ortiguera, en la ría de Navia, como vigia de una de las costas más salvajes del occidente asturiano. Construido en el siglo XIX, guiaba a pescadores y embarcaciones comerciales que navegaban entre Asturias y las Islas Británicas.' },
+      { lat: 43.537232, lng: -5.634916, nombre: 'Museo del Pueblo de Asturias (Gijón)', cat: 'Museo marítimo', color: '#60A5FA',
+        desc: 'Alberga una colección etnográfica sobre la vida marinera asturiana: redes, embarcaciones tradicionales, útiles de pesca y testimonios de pescadores.' },
+      { lat: 43.421024, lng: -4.751852, nombre: 'Puerto de Llanes', cat: 'Puerto pesquero', color: '#2563EB',
+        desc: 'El puerto conserva sus murallas medievales del siglo XIV. Centro histórico de la emigración asturiana hacia América. Su lonja y su cofradía de pescadores mantienen viva la tradición marinera.' },
+      { lat: 43.546556, lng: -6.532715, nombre: 'Puerto de Luarca', cat: 'Puerto pesquero', color: '#2563EB',
+        desc: 'Uno de los puertos pesqueros más pintorescos del Cantábrico. Conocida como "la villa blanca de la costa verde", Luarca es símbolo de la identidad marinera del occidente asturiano.' },
+    ]
+  },
+
+  historia: {
+    color: '#9E5E3F',
+    lugares: [
+      { lat: 43.379261, lng: -5.865962, nombre: 'Santa María del Naranco', cat: 'Prerrománico', color: '#9E5E3F',
+        desc: 'Palacio del rey Ramiro I (848 d.C.), reconvertido en iglesia. Patrimonio de la Humanidad UNESCO. Ejemplo cumbre de la arquitectura asturiana prerrománica.' },
+      { lat: 43.380468, lng: -5.868436, nombre: 'San Miguel de Lillo', cat: 'Prerrománico', color: '#9E5E3F',
+        desc: 'Iglesia del siglo IX declarada Patrimonio de la Humanidad. Destaca por sus celosías de piedra tallada y sus pinturas murales, las más antiguas de Asturias.' },
+      { lat: 43.367882, lng: -5.837200, nombre: 'San Julián de los Prados (Santullano)', cat: 'Prerrománico', color: '#9E5E3F',
+        desc: 'Iglesia de época de Alfonso II (siglo IX), con las pinturas murales prerrománicas mejor conservadas de Europa. Patrimonio de la Humanidad.' },
+      { lat: 43.511192, lng: -6.749351, nombre: 'Castro de Coaña', cat: 'Castro prerromano', color: '#7C3D2E',
+        desc: 'Uno de los castros castreños mejor conservados de Asturias (siglos III a.C. – I d.C.). Más de 80 estructuras excavadas que revelan la vida de los astures.' },
+      { lat: 43.397479, lng: -4.533123, nombre: 'Cueva de El Pindal', cat: 'Castro prerromano', color: '#7C3D2E',
+        desc: 'Cueva con pinturas rupestres paleolíticas, incluyendo la famosa figura del mamut. Declarada Patrimonio de la Humanidad como parte del Arte Rupestre Paleolítico.' },
+      { lat: 43.288780, lng: -5.653025, nombre: 'Museo de la Minería (El Entrego)', cat: 'Patrimonio minero', color: '#C4845A',
+        desc: 'Museo instalado en una mina real. Recorre la historia del carbón asturiano y los mineros que durante más de un siglo sostuvieron la economía regional.' },
+      { lat: 43.548565, lng: -5.662323, nombre: 'Cerro de Santa Catalina (Gijón)', cat: 'Castro prerromano', color: '#7C3D2E',
+        desc: 'Asentamiento romano de Gigia, origen de la ciudad de Gijón. Las termas romanas del siglo I d.C. son uno de los vestigios más importantes del norte de España.' },
+      { lat: 43.362594, lng: -5.842835, nombre: 'Cámara Santa de la Catedral de Oviedo', cat: 'Prerrománico', color: '#9E5E3F',
+        desc: 'Capilla del siglo IX que alberga el tesoro más importante del arte asturiano: la Cruz de los Ángeles, la Cruz de la Victoria y el Arca Santa. Patrimonio de la Humanidad.' },
+    ]
+  },
+
+  gastronomia: {
+    color: '#D97706',
+    lugares: [
+      { lat: 43.303084, lng: -4.817373, nombre: 'Cabrales (Arenas de Cabrales)', cat: 'Quesería D.O.', color: '#D97706',
+        desc: 'El queso Cabrales, elaborado tradicionalmente en el entorno de Arenas de Cabrales, es uno de los productos más emblemáticos de la gastronomía asturiana. Es un queso azul elaborado principalmente con leche de vaca, aunque también puede combinar leche de oveja y cabra. Su característica más singular es su maduración en cuevas naturales de los Picos de Europa, donde adquiere su particular aroma, textura y veteado azul verdoso.' },
+      { lat: 43.360383, lng: -5.845665, nombre: 'Mercado El Fontán (Oviedo)', cat: 'Mercado tradicional', color: '#F59E0B',
+        desc: 'El Mercado de El Fontán es uno de los lugares más tradicionales de Oviedo. Situado en pleno casco histórico, sus orígenes comerciales se remontan al siglo XVI, aunque el edificio actual fue construido entre 1882 y 1885. Destaca por su arquitectura de hierro y cristal y por ofrecer productos frescos y típicos de Asturias, como carnes, pescados, quesos y productos de la huerta. Es, además, un importante punto de encuentro y de ambiente tradicional de la ciudad.' },
+      { lat: 43.468361, lng: -5.467225, nombre: 'Los Caserinos (Villaviciosa)', cat: 'Productos artesanales', color: '#F59E0B',
+        desc: 'Los Caserinos es una explotación familiar situada en Villaviciosa, dedicada a la elaboración artesanal de productos lácteos asturianos. Destaca especialmente por sus quesos, yogures y otros productos elaborados con leche de su propia ganadería, siguiendo métodos tradicionales y apostando por la calidad y el producto local. Además, ofrece una experiencia de acercamiento al mundo rural y a la gastronomía tradicional asturiana.' },
+      { lat: 43.389280, lng: -6.068819, nombre: 'Mercado de Grado (Mercáu de Gráu)', cat: 'Mercado tradicional', color: '#B45309',
+        desc: 'Es uno de los mercados tradicionales más importantes de Asturias. Se celebra desde la Edad Media y ha sido durante siglos un punto de encuentro para comerciantes y habitantes de la zona. Podemos encontrar productos locales como quesos, embutidos, frutas, verduras y otros productos artesanales. El mercado forma parte de la cultura y las tradiciones de Grado, manteniendo vivo el ambiente de los antiguos mercados asturianos.' },
+      { lat: 43.341408, lng: -4.982443, nombre: 'La Oveja Feliz (Benia de Onis)', cat: 'Granja', color: '#B45309',
+        desc: 'Es una auténtica granja asturiana, en el entorno de los Picos de Europa. Los visitantes pueden conocer de cerca la vida tradicional del campo y el cuidado de los animales. La visita está especialmente pensada para que los niños aprendan y disfruten del contacto directo con los animales y la naturaleza. Ofrece una experiencia cercana y educativa permitiendo descubrir la vida rural asturiana y las tradiciones ganaderas de la zona de Onís.' },
+      { lat: 43.252799, lng: -5.871834, nombre: 'Afuega\'l Pitu (Morcín)', cat: 'Quesería D.O.', color: '#D97706',
+        desc: 'El Afuega’l Pitu es uno de los quesos más tradicionales de Asturias y cuenta con Denominación de Origen Protegida (DOP). Se elabora principalmente con leche de vaca y destaca por su textura cremosa y su sabor intenso, que puede ser suave o ligeramente picante según el tipo de maduración. Su nombre, Afuega’l Pitu, hace referencia a la sensación que puede producir al comerlo, ya que antiguamente se decía que podía “ahogar al pollo” por su textura y sabor.' },
+      { lat: 43.493747, lng: -5.424192, nombre: 'Sidra El Gaitero (Villaviciosa)', cat: 'Tradición sidrera', color: '#F59E0B',
+        desc: 'Empresa asturiana fundada en 1890 por Valle, Ballina y Fernández, con sus bodegas en La Espuncia, Villaviciosa. Es una de las marcas de sidra más emblemáticas de Asturias y un referente de su tradición gastronómica. Sus instalaciones, de más de 40.000 m², conservan un importante patrimonio histórico e industrial y continúan dedicadas a la elaboración de sidras y otros productos asturianos.' },
+      { lat: 43.352096, lng: -5.128789, nombre: 'Queso Gamonéu (Onís)', cat: 'Quesería D.O.', color: '#D97706',
+        desc: 'El queso Gamonéu es un queso tradicional de Asturias, elaborado en los concejos de Onís y Cangas de Onís. Se produce con leche de vaca, oveja y cabra, y destaca por su sabor intenso, ligeramente ahumado y con un toque picante. Su elaboración artesanal y su maduración en cuevas de montaña le dan una textura y un aroma muy característicos. Es uno de los quesos más representativos de la gastronomía asturiana y cuenta con Denominación de Origen Protegida (DOP).' },
+    ]
+  },
+
+  oficios: {
+    color: '#5C6B4A',
+    lugares: [
+      { lat: 43.287061, lng: -6.314084, nombre: 'Ferrería de Boinás (Belmonte de Miranda)', cat: 'Ferrería', color: '#5C6B4A',
+        desc: 'La Ferrería de Boinás, en Belmonte de Miranda, fue una antigua instalación dedicada a la transformación del hierro, vinculada a la tradición metalúrgica del concejo. Está documentada desde la Edad Moderna y estuvo relacionada con el monasterio de Santa María de Lapedo. Forma parte de un importante patrimonio industrial ligado al aprovechamiento del agua y a la tradición minera de la zona.' },
+      { lat: 43.357154, lng: -7.106539, nombre: 'Museo Molinos de Mazonovo (Taramundi)', cat: 'Museo', color: '#5C6B4A',
+        desc: 'El Museo conserva un conjunto de molinos hidráulicos tradicionales en activo, declarado Bien de Interés Cultural. Enclavado en un valle fluvial del occidente asturiano, muestra el proceso completo de molienda del grano con maquinaria de madera original. Complementa perfectamente la tradición artesanal de Taramundi, famosa también por sus cuchilleros y herreros.' },
+      { lat: 43.3560, lng: -5.8490, nombre: 'Escuela de Cantería de Oviedo', cat: 'Artesanía', color: '#47553A',
+        desc: 'La Escuela de Cantería de Oviedo representa la tradición de la talla y el trabajo artesanal de la piedra, un oficio estrechamente ligado a la arquitectura histórica asturiana. Su finalidad es conservar y transmitir las técnicas tradicionales de la cantería, formando a nuevas generaciones en un oficio que ha contribuido a la construcción y restauración del patrimonio de Oviedo y Asturias.' },
+      { lat: 43.546644, lng: -6.534731, nombre: 'Rederas de Luarca', cat: 'Artesanía', color: '#47553A',
+        desc: 'Las Rederas de Luarca son las mujeres que desde generaciones tejen y reparan a mano las redes de pesca en el puerto. Sentadas en los muelles con sus agujas de madera, mantienen vivo uno de los oficios más antiguos e invisibles de la cultura marinera asturiana. Un trabajo lento, preciso y colectivo que garantizaba la supervivencia de las familias pescadoras y que hoy resisten como símbolo de la memoria viva del Cantábrico.' },
+      { lat: 43.240570, lng: -6.427594, nombre: 'Cerámica Negra de Llamas de Mouro', cat: 'Alfarería', color: '#8FAB72',
+        desc: 'Una de las tradiciones alfareras más singulares y antiguas de Asturias. Es característico su color negro, técnica prerromana que apenas se conserva en Europa. Las piezas se modelan usando arcillas locales del occidente asturiano. Hoy quedan muy pocos alfareros que dominen esta técnica, convirtiendo cada pieza en un testimonio frágil de un saber en peligro de extinción.' },
+      { lat: 43.205108, lng: -5.395910, nombre: 'Museo Apicultura de Caso', cat: 'Apicultura tradicional', color: '#5C6B4A',
+        desc: 'Situado en el Parque Natural de Redes recoge la tradición milenaria de la apicultura asturiana en torno a los "dujos", las colmenas tradicionales excavadas en troncos de árbol. Muestra la evolución del oficio desde sus orígenes prerromanos hasta la actualidad, con una colección única de colmenas tradicionales, útiles de apicultor y documentación sobre la flora melífera asturiana. Un museo pequeño pero extraordinario que preserva un saber íntimamente ligado al bosque atlántico.' },
+      { lat: 43.217713, lng: -6.874104, nombre: 'Museo Etnográfico Grandas de Salime', cat: 'Museo etnográfico', color: '#47553A',
+        desc: 'El Museo Etnográfico de Grandas de Salime es uno de los más completos de Asturias y del norte de España. Recoge más de 15.000 piezas que documentan la vida rural asturiana tradicional: aperos de labranza, telares, útiles de cocina, herramientas de oficios desaparecidos y testimonios de una cultura campesina que pervivió hasta mediados del siglo XX.' },
+      { lat: 43.345731, lng: -5.973264, nombre: 'Fábrica de Armas de Trubia', cat: 'Patrimonio Industrial', color: '#5C6B4A',
+        desc: 'Fundada en 1794 a orillas del río Nalón, fue el primer establecimiento industrial moderno de Asturias. Especializada en la fundición de cañones y artillería, abasteció al ejército español durante las guerras napoleónicas, las carlistas y los conflictos coloniales. Su tecnología de vanguardia y sus hornos de fundición la convirtieron en referente de la industria militar europea del siglo XIX.' },
+    ]
+  }
+
+};
+
+// ── MAPAS ──────────────────────────────────────────────────────────
+
+const mapas = {};
+
+function crearIcono(color) {
+  return L.divIcon({
+    html: `<div style="
+      width:14px; height:14px;
+      background:${color};
+      border:2.5px solid white;
+      border-radius:50%;
+      box-shadow:0 2px 6px rgba(0,0,0,0.35);
+    "></div>`,
+    className: '',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+    popupAnchor: [0, -10]
+  });
+}
+
+function inicializarMapa(id, lugaresData) {
+  if (mapas[id]) return;
+
+  const mapa = L.map('mapa-' + id, {
+    center: [43.42, -5.80],
+    zoom: 8,
+    zoomControl: true,
+    scrollWheelZoom: false
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(mapa);
+
+  const lista = document.getElementById('lista-' + id);
+
+  lugaresData.lugares.forEach((lugar, i) => {
+    const marker = L.marker([lugar.lat, lugar.lng], { icon: crearIcono(lugar.color) })
+      .addTo(mapa)
+      .bindPopup(`
+        <div style="font-family:'Manrope',sans-serif; min-width:200px; max-width:260px;">
+          <div style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:${lugar.color}; margin-bottom:6px;">${lugar.cat}</div>
+          <div style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px; font-weight:500; color:#1A1A1A; margin-bottom:8px;">${lugar.nombre}</div>
+          <div style="font-size:13px; color:#3A3835; line-height:1.6;">${lugar.desc}</div>
+        </div>
+      `, { maxWidth: 280 });
+
+    // Tarjeta en lista
+    const card = document.createElement('div');
+    card.className = 'lugar-card';
+    card.innerHTML = `
+      <div class="lugar-card-cat" style="color:${lugar.color}">${lugar.cat}</div>
+      <h3>${lugar.nombre}</h3>
+      <p>${lugar.desc}</p>
+    `;
+    card.addEventListener('click', () => {
+      mapa.setView([lugar.lat, lugar.lng], 12, { animate: true });
+      marker.openPopup();
+    });
+    lista.appendChild(card);
+  });
+
+  mapas[id] = mapa;
+}
+
+// ── SELECTOR ───────────────────────────────────────────────────────
+
+function mostrarMapa(id) {
+  // Ocultar todos los paneles
+  document.querySelectorAll('.mapa-panel').forEach(p => p.classList.remove('activo'));
+  document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('activo'));
+
+  // Mostrar el seleccionado
+  document.getElementById('panel-' + id).classList.add('activo');
+  document.getElementById('btn-' + id).classList.add('activo');
+
+  // Inicializar mapa si no existe
+  inicializarMapa(id, datos[id]);
+
+  // Forzar redibujado del mapa (necesario en Leaflet al cambiar display)
+  setTimeout(() => {
+    if (mapas[id]) mapas[id].invalidateSize();
+  }, 100);
+}
+
+// ── INICIO ─────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  inicializarMapa('cultura', datos.cultura);
+});
+</script>
+
+<!-- Leaflet JS cargado al final para garantizar disponibilidad -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+window.addEventListener('load', () => {
+  inicializarMapa('cultura', datos.cultura);
+});
+</script>
+</body>
+</html>
