@@ -376,64 +376,94 @@
 	transform: none !important;
     }
 
-	 	/* Ocultar descripción y etiqueta por defecto (solo en pantallas grandes) */
-.zona-card .zona-desc,
-.zona-card .zona-etiqueta {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+
+
+
+
+
+
+
+/* ===== ESTILOS PARA LAS TARJETAS DE UNIDAD (ZONA) ===== */
+
+/* Contenedor de cada tarjeta */
+.zona-card {
+  position: relative;
+  overflow: hidden;
+  /* Añade aquí otros estilos que tengas (bordes, sombras, etc.) */
 }
-	  /* Mostrar al hacer hover (PC) o al tener foco (móvil) */
-.zona-card:hover .zona-desc,
-.zona-card:focus .zona-desc,
-.zona-card:hover .zona-etiqueta,
-.zona-card:focus .zona-etiqueta {
-  opacity: 1;
-  transform: translateY(0);
-} 
 
+/* Capa que contiene todos los textos */
+.zona-contenido {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  padding: 10px;
+  /* Fondo semitransparente opcional para mejorar legibilidad */
+  /* background: rgba(0, 0, 0, 0.4); */
+  border-radius: 8px;
+}
 
+/* Etiqueta "UNIDAD 1", "UNIDAD 2"... */
+.zona-etiqueta {
+  font-size: 0.9rem;
+  color: #ffcc00; /* Dorado */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
 
+/* Título principal "Cultura Marítima" */
+.zona-nombre {
+  font-size: 1.8rem;
+  color: #ffffff; /* Blanco */
+  font-weight: bold;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
 
+/* Descripción larga */
+.zona-desc {
+  font-size: 1rem;
+  color: #ffffff; /* Blanco */
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
 
+/* Enlace "Explorar unidad →" */
+.zona-link {
+  font-size: 1rem;
+  color: #ffaa00; /* Naranja */
+  text-decoration: none;
+  font-weight: 500;
+}
 
-/* Ajustes para móvil */
+/* ===== AJUSTES PARA MÓVIL (pantallas ≤ 768px) ===== */
 @media (max-width: 768px) {
-  .zona-card .zona-nombre {
-    font-size: 1.6rem; /* Título más pequeño */
-    color: #ffffff;
-  }
-  .zona-card .zona-desc {
-    font-size: 0.6rem; /* Descripción más pequeña */
-    padding: 0 10px;
-    color: #ffffff;
-  }
-  .zona-card .zona-etiqueta {
-    font-size: 0.7rem;
-  }
-  /* Asegurar que en móvil la descripción solo se vea al tocar */
-  
-  .zona-card:focus .zona-desc,
-  .zona-card:focus .zona-etiqueta {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-	@media (max-width: 768px) {
   .zona-contenido {
-    position: absolute;
     bottom: 10px;
     left: 10px;
     right: 10px;
-    padding: 10px;
+    padding: 8px;
   }
+
   .zona-nombre {
-    margin-bottom: 5px;
+    font-size: 1.6rem; /* Título más pequeño */
+  }
+
+  .zona-desc {
+    font-size: 0.9rem; /* Descripción más pequeña */
+    padding: 0; /* Elimina padding extra que pudieras tener */
+  }
+
+  .zona-etiqueta {
+    font-size: 0.8rem;
+  }
+
+  .zona-link {
+    font-size: 0.9rem;
   }
 }
-
-
 
     
   </style>
