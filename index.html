@@ -376,7 +376,21 @@
 	transform: none !important;
     }
 
-	  
+	 	/* Ocultar descripción y etiqueta por defecto (solo en pantallas grandes) */
+.zona-card .zona-desc,
+.zona-card .zona-etiqueta {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+	  /* Mostrar al hacer hover (PC) o al tener foco (móvil) */
+.zona-card:hover .zona-desc,
+.zona-card:focus .zona-desc,
+.zona-card:hover .zona-etiqueta,
+.zona-card:focus .zona-etiqueta {
+  opacity: 1;
+  transform: translateY(0);
+} 
 
 
 
@@ -398,11 +412,7 @@
     font-size: 0.7rem;
   }
   /* Asegurar que en móvil la descripción solo se vea al tocar */
-  .zona-card .zona-desc,
-  .zona-card .zona-etiqueta {
-    opacity: 0;
-    transform: translateY(5px);
-  }
+  
   .zona-card:focus .zona-desc,
   .zona-card:focus .zona-etiqueta {
     opacity: 1;
