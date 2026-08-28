@@ -440,12 +440,15 @@
 }
 
 @media (max-width: 768px) {
-  /* === REGLAS QUE YA TIENES (NO LAS TOQUES) === */
   .zona-contenido {
     bottom: 10px;
     left: 10px;
     right: 10px;
-    padding: 8px;
+    padding: 10px 15px; /* ← Ajusta este valor a tu gusto */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
   }
 
   .zona-nombre {
@@ -455,36 +458,18 @@
   .zona-desc {
     font-size: 0.6rem;
     padding-right: 20px;
+    margin-bottom: 6px; /* ← Separa descripción del enlace */
   }
 
   .zona-etiqueta {
     font-size: 0.6rem;
-    margin-bottom: 8px; /* (si ya lo añadiste, lo dejas) */
+    margin-bottom: 8px; /* ← Separa etiqueta del título */
   }
 
   .zona-link {
-    font-size: 0.5rem;
-    /* AQUÍ AÑADIRÁS LA NUEVA PROPIEDAD */
-  }
-
-  /* === NUEVAS REGLAS QUE AÑADES PARA MOVER CONTENIDO === */
-  .zona-contenido {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%; /* O la altura que necesites */
-    /* Si ya tenías padding, se sobreescribe con el de abajo */
-    padding: 10px 15px; /* Ajusta si quieres */
-  }
-
-  .zona-contenido > *:not(.zona-link) {
-    margin-bottom: 6px; /* Espacio entre etiqueta, título y descripción */
-  }
-
-  .zona-link {
-    margin-top: auto; /* Empuja el enlace al final */
-    padding-top: 10px; /* Espacio extra entre descripción y enlace */
-    /* Conserva el font-size que ya tenías (0.5rem) */
+    font-size: 0.5rem; /* ← Mantén el tamaño que tenías */
+    margin-top: auto; /* ← Empuja el enlace al final */
+    padding-top: 10px; /* ← Espacio extra */
   }
 }
     
