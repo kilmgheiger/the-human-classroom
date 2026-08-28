@@ -395,14 +395,16 @@
 }
 
 
+
 /* Ajustes para móvil */
 @media (max-width: 768px) {
   .zona-card .zona-nombre {
-    font-size: 1.2rem; /* Título más pequeño */
+    font-size: 1.6rem; /* Título más pequeño */
   }
   .zona-card .zona-desc {
-    font-size: 0.9rem; /* Descripción más pequeña */
+    font-size: 0.6rem; /* Descripción más pequeña */
     padding: 0 10px;
+    color:#ffffff;
   }
   .zona-card .zona-etiqueta {
     font-size: 0.8rem;
@@ -419,6 +421,20 @@
     transform: translateY(0);
   }
 }
+
+	@media (max-width: 768px) {
+  .zona-contenido {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 10px;
+  }
+  .zona-nombre {
+    margin-bottom: 5px;
+  }
+}
+
 
 	@media (max-width: 768px) {
   .zona-contenido {
