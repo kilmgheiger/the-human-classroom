@@ -376,6 +376,64 @@
 	transform: none !important;
     }
 
+	  
+	/* Ocultar descripción y etiqueta por defecto (solo en pantallas grandes) */
+.zona-card .zona-desc,
+.zona-card .zona-etiqueta {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Mostrar al hacer hover (PC) o al tener foco (móvil) */
+.zona-card:hover .zona-desc,
+.zona-card:focus .zona-desc,
+.zona-card:hover .zona-etiqueta,
+.zona-card:focus .zona-etiqueta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* Ajustes para móvil */
+@media (max-width: 768px) {
+  .zona-card .zona-nombre {
+    font-size: 1.2rem; /* Título más pequeño */
+  }
+  .zona-card .zona-desc {
+    font-size: 0.9rem; /* Descripción más pequeña */
+    padding: 0 10px;
+  }
+  .zona-card .zona-etiqueta {
+    font-size: 0.8rem;
+  }
+  /* Asegurar que en móvil la descripción solo se vea al tocar */
+  .zona-card .zona-desc,
+  .zona-card .zona-etiqueta {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  .zona-card:focus .zona-desc,
+  .zona-card:focus .zona-etiqueta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+	@media (max-width: 768px) {
+  .zona-contenido {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 10px;
+  }
+  .zona-nombre {
+    margin-bottom: 5px;
+  }
+}
+
+
     
   </style>
 </head>
@@ -440,7 +498,7 @@
     </div>
     <div class="zonas-grid">
 
-      <a class="zona-card" href="#">
+      <a class="zona-card" href="#" tabindex="0">
         <img src="imagenes/lastres.webp" alt="Cultura Marítima" loading="lazy" />
         <div class="zona-overlay"></div>
         <div class="zona-contenido">
@@ -451,7 +509,7 @@
         </div>
       </a>
 
-      <a class="zona-card" href="#">
+      <a class="zona-card" href="#" tabindex="0">
         <img src="imagenes/folklore.webp" alt="Tradiciones y Folklore" loading="lazy" />
         <div class="zona-overlay"></div>
         <div class="zona-contenido">
@@ -462,7 +520,7 @@
         </div>
       </a>
 
-      <a class="zona-card" href="#">
+      <a class="zona-card" href="#" tabindex="0">
         <img src="imagenes/cangasdeonis.jpg" alt="Historia de Asturias" loading="lazy" />
         <div class="zona-overlay"></div>
         <div class="zona-contenido">
@@ -473,7 +531,7 @@
         </div>
       </a>
 
-      <a class="zona-card" href="#">
+      <a class="zona-card" href="#" tabindex="0">
         <img src="imagenes/gastronomia-01.jpg" alt="Gastronomía asturiana" loading="lazy" />
         <div class="zona-overlay"></div>
         <div class="zona-contenido">
