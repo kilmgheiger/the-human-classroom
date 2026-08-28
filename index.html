@@ -439,8 +439,8 @@
   padding-top: 30px;
 }
 
-/* ===== AJUSTES PARA MÓVIL (pantallas ≤ 768px) ===== */
 @media (max-width: 768px) {
+  /* === REGLAS QUE YA TIENES (NO LAS TOQUES) === */
   .zona-contenido {
     bottom: 10px;
     left: 10px;
@@ -449,22 +449,42 @@
   }
 
   .zona-nombre {
-    font-size: 1.4rem; /* Título más pequeño */
-	 
+    font-size: 1.4rem;
   }
 
   .zona-desc {
-    font-size: 0.6rem; /* Descripción más pequeña */
-    padding-right: 20px; /* Elimina padding extra que pudieras tener */
+    font-size: 0.6rem;
+    padding-right: 20px;
   }
 
   .zona-etiqueta {
     font-size: 0.6rem;
-	  margin-bottom: 30px;
+    margin-bottom: 8px; /* (si ya lo añadiste, lo dejas) */
   }
 
   .zona-link {
     font-size: 0.5rem;
+    /* AQUÍ AÑADIRÁS LA NUEVA PROPIEDAD */
+  }
+
+  /* === NUEVAS REGLAS QUE AÑADES PARA MOVER CONTENIDO === */
+  .zona-contenido {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* O la altura que necesites */
+    /* Si ya tenías padding, se sobreescribe con el de abajo */
+    padding: 10px 15px; /* Ajusta si quieres */
+  }
+
+  .zona-contenido > *:not(.zona-link) {
+    margin-bottom: 6px; /* Espacio entre etiqueta, título y descripción */
+  }
+
+  .zona-link {
+    margin-top: auto; /* Empuja el enlace al final */
+    padding-top: 10px; /* Espacio extra entre descripción y enlace */
+    /* Conserva el font-size que ya tenías (0.5rem) */
   }
 }
     
