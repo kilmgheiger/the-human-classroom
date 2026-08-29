@@ -18,17 +18,52 @@
     html{scroll-behavior:smooth;}
     body{background:var(--crema);color:var(--texto);font-family:var(--f-cuerpo);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;}
     nav{position:sticky;top:0;z-index:1000;background:rgba(250,248,245,0.95);backdrop-filter:blur(8px);border-bottom:none;padding:0 40px;height:120px;display:flex;align-items:center;justify-content:space-between;}
-    .nav-logo{font-family:var(--f-titulo);font-style:italic;font-size:20px;font-weight:500;color:var(--texto);text-decoration:none;flex-shrink:0;}
+    .nav-logo{font-family:var(--f-titulo);font-style:italic;font-size:22px;font-weight:500;color:var(--texto);text-decoration:none;flex-shrink:0;}
     .nav-logo span{color:var(--musgo);}
-    .nav-logo img{height:80px;width:auto;margin-left:100px;margin-top:20px}
     .nav-derecha{display:flex;align-items:center;gap:20px;}
-    .nav-back{font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--musgo);text-decoration:none;display:flex;align-items:center;gap:8px;transition:gap 0.2s;}
+    .nav-back{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--musgo);text-decoration:none;display:flex;align-items:center;gap:8px;transition:gap 0.2s;}
     .nav-back:hover{gap:12px;}
-    .lang-selector{display:flex;align-items:center;gap:4px;border-left:1px solid var(--gris);padding-left:20px;flex-shrink:0;}
-    .lang-btn{font-family:var(--f-cuerpo);font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--gris-medio);background:none;border:none;cursor:pointer;padding:4px 6px;transition:color 0.2s;text-transform:uppercase;}
-    .lang-btn:hover{color:var(--musgo);}
-    .lang-btn.activo{color:var(--musgo);border-bottom:1.5px solid var(--musgo);}
-    .lang-sep{color:var(--gris);font-size:11px;user-select:none;}
+    /* ── Lang selector ── */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 1px solid var(--gris);
+  padding-left: 20px;
+  flex-shrink: 0;
+}
+
+.lang-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.flag-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.lang-btn:hover {
+  border-color: var(--musgo);
+  transform: scale(1.1);
+}
+
+.lang-btn.activo {
+  border-color: var(--musgo);
+  box-shadow: 0 0 0 1px var(--musgo);
+}
+
     .cabecera{padding:64px 40px 48px;text-align:center;max-width:700px;margin:0 auto;}
     .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--musgo);margin-bottom:16px;}
     .cabecera h1{font-family:var(--f-titulo);font-style:italic;font-size:clamp(32px,4vw,52px);font-weight:500;line-height:1.1;color:var(--texto);margin-bottom:20px;}
@@ -69,25 +104,40 @@
       .mapa-wrapper{padding:0 16px 60px;}
       .mapa-container{height:380px;}
       .mapa-info{grid-template-columns:1fr;}
-      .nav-logo img{height:40px;width:auto;margin-left: 15px;}
+      .nav-logo img {height: 28px;width: auto;}
     }
+   
+    @media (max-width: 768px) {
+  .lang-btn {width: 28px;height: 28px;}
+    }
+
+
   </style>
 </head>
 <body>
 
 <nav>
- <a class="nav-logo" href="mapas.html">
-    <img src="imagenes/logo-02.png" alt="The Human Classroom Asturias">
+  <a class="nav-logo" href="mapas.html">
+    <img src="imagenes/logo-02.png" alt="The Human Classroom Asturias" style="height: 80px; width: auto; margin-left: 100px; margin-top: 20px;">
 </a>
   <div class="nav-derecha">
-    <a class="nav-back" href="index.html" data-i18n="nav-volver">← inicio</a>
+    <a class="nav-back" href="index.html" data-i18n="nav-volver">← Volver al inicio</a>
     <div class="lang-selector">
-      <button class="lang-btn activo" onclick="setLang('es')" id="btn-es">ES</button>
-      <span class="lang-sep">·</span>
-      <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
-      <span class="lang-sep">·</span>
-      <button class="lang-btn" onclick="setLang('de')" id="btn-de">DE</button>
-    </div>
+  <button class="lang-btn activo" onclick="setLang('es')" id="btn-es"
+    aria-label="Cambiar a español" title="Español">
+    <img src="imagenes/flag-es.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+
+  <button class="lang-btn" onclick="setLang('en')" id="btn-en"
+    aria-label="Cambiar a inglés" title="English">
+    <img src="imagenes/flag-en.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+
+  <button class="lang-btn" onclick="setLang('de')" id="btn-de"
+    aria-label="Cambiar a alemán" title="Deutsch">
+    <img src="imagenes/flag-de.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+</div>
   </div>
 </nav>
 
@@ -194,7 +244,7 @@ let langActual = 'es';
 // ── TRADUCCIONES UI ──────────────────────────────────────────────────
 const ui = {
   es: {
-    'nav-volver':'← inicio','cab-eyebrow':'Herramienta interactiva',
+    'nav-volver':'← Volver al inicio','cab-eyebrow':'Herramienta interactiva',
     'cab-titulo':'Asturias sobre el mapa',
     'cab-texto':'Explora el patrimonio cultural de Asturias a través de cuatro mapas temáticos. Haz clic en cualquier marcador para obtener información sobre el lugar.',
     'tab-cultura':'Cultura Marítima','tab-historia':'Historia','tab-historia-full':'Historia y Territorio',
@@ -211,7 +261,7 @@ const ui = {
     'footer-volver':'Volver al inicio',
   },
   en: {
-    'nav-volver':'← home','cab-eyebrow':'Interactive tool',
+    'nav-volver':'← Back to home','cab-eyebrow':'Interactive tool',
     'cab-titulo':'Asturias on the map',
     'cab-texto':'Explore the cultural heritage of Asturias through four thematic maps. Click on any marker to get information about the place.',
     'tab-cultura':'Maritime Culture','tab-historia':'History','tab-historia-full':'History & Territory',
@@ -228,7 +278,7 @@ const ui = {
     'footer-volver':'Back to home',
   },
   de: {
-    'nav-volver':'← Startseite','cab-eyebrow':'Interaktives Werkzeug',
+    'nav-volver':'← Zurück zur Startseite','cab-eyebrow':'Interaktives Werkzeug',
     'cab-titulo':'Asturien auf der Karte',
     'cab-texto':'Erkunde das Kulturerbe Asturiens anhand von vier thematischen Karten. Klicke auf einen Marker, um Informationen über den Ort zu erhalten.',
     'tab-cultura':'Meereskultur','tab-historia':'Geschichte','tab-historia-full':'Geschichte & Territorium',
