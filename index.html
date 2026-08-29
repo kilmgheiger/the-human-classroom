@@ -45,7 +45,7 @@
       height: 120px;
       background: rgba(250, 248, 245, 0.92);
       backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--gris);
+      border-bottom: none;
     }
     .nav-logo {
       font-family: var(--f-titulo);
@@ -54,7 +54,6 @@
       font-weight: 500;
       color: var(--texto);
       text-decoration: none;
-      letter-spacing: 0.01em;
       flex-shrink: 0;
     }
     .nav-logo span { color: var(--musgo); }
@@ -83,38 +82,46 @@
     .nav-menu a:hover { color: var(--musgo); }
 
     /* ─── SELECTOR DE IDIOMA ── */
-    .lang-selector {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      border-left: 1px solid var(--gris);
-      padding-left: 20px;
-      margin-left: 8px;
-      flex-shrink: 0;
-    }
-    .lang-btn {
-      font-family: var(--f-cuerpo);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      color: var(--gris-medio);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px 6px;
-      transition: color 0.2s;
-      text-transform: uppercase;
-    }
-    .lang-btn:hover { color: var(--musgo); }
-    .lang-btn.activo {
-      color: var(--musgo);
-      border-bottom: 1.5px solid var(--musgo);
-    }
-    .lang-sep {
-      color: var(--gris);
-      font-size: 11px;
-      user-select: none;
-    }
+    /* ── Lang selector ── */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 1px solid var(--gris);
+  padding-left: 20px;
+  flex-shrink: 0;
+}
+
+.lang-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.flag-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.lang-btn:hover {
+  border-color: var(--musgo);
+  transform: scale(1.1);
+}
+
+.lang-btn.activo {
+  border-color: var(--musgo);
+  box-shadow: 0 0 0 1px var(--musgo);
+}
 
     .nav-derecha {
       display: flex;
@@ -360,6 +367,11 @@
       .footer-creditos { flex-direction: column; align-items: flex-start; }
       nav { padding: 0 16px; }
       .lang-selector { border-left: none; padding-left: 0; }
+      .nav-logo img {height: 28px;width: auto;}
+    }
+
+    @media (max-width: 768px) {
+      .lang-btn { width: 28px; height: 28px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -479,12 +491,21 @@
     <div class="nav-derecha">
       <!-- SELECTOR DE IDIOMA -->
       <div class="lang-selector">
-        <button class="lang-btn activo" onclick="setLang('es')" id="btn-es">ES</button>
-        <span class="lang-sep">·</span>
-        <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
-        <span class="lang-sep">·</span>
-        <button class="lang-btn" onclick="setLang('de')" id="btn-de">DE</button>
-      </div>
+  <button class="lang-btn activo" onclick="setLang('es')" id="btn-es"
+    aria-label="Cambiar a español" title="Español">
+    <img src="imagenes/flag-es.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+
+  <button class="lang-btn" onclick="setLang('en')" id="btn-en"
+    aria-label="Cambiar a inglés" title="English">
+    <img src="imagenes/flag-en.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+
+  <button class="lang-btn" onclick="setLang('de')" id="btn-de"
+    aria-label="Cambiar a alemán" title="Deutsch">
+    <img src="imagenes/flag-de.png" alt="" aria-hidden="true" class="flag-icon">
+  </button>
+</div>
       <button class="nav-burger" id="burger" aria-label="Abrir menú">
         <span></span><span></span><span></span>
       </button>
